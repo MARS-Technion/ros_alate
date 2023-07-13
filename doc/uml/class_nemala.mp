@@ -1,6 +1,6 @@
 Class.dispatcher("NeMALA::Dispatcher")()();
 AbstractClass.handler("NeMALA::Handler")()(abstract "+Handle(ptMsgBody:MessagePropertyTree)");
-Class.publisher("NeMALA::Publisher")("-m_bMuted:bool")("+Publish(BaseMessage& msg)", "+Mute(bool bMuted)");
+Class.publisher("NeMALA::Publisher")("-m_bMuted:bool")("+Publish(msg:BaseMessage&)", "+Mute(bMuted:bool)");
 AbstractClass.msg_pt("NeMALA::MessagePropertyTree")()();
 AbstractClass.msg("NeMALA::BaseMessage")("-m_unTopic:uint","-m_tTime:string")();
 
