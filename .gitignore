@@ -1,0 +1,10 @@
+# hidden files are probably hidden for a reason
+.*
+# don't show temp files
+*~
+# compiled bytecode
+*.pyc
+# only publish the blueprints you want
+uml/
+# only publish the images you have to
+images/
