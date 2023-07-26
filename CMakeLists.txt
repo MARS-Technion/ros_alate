@@ -7,11 +7,41 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
 
-add_executable(adapter src/adapter.cpp)
+find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(ros_alate_interfaces REQUIRED)
+
+########################## Additional Packages #########################
+
+# Add Boost
+set(BOOST_ROOT ${CMAKE_FIND_ROOT_PATH} CACHE PATH "Hint to where the proper Boost is installed")
+find_package(Boost 1.71.0 REQUIRED COMPONENTS "system" "serialization" "thread" "filesystem" "date_time")
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+else()
+  message(FATAL_ERROR "Could not find boost!")
+endif()
+
+#Add NeMALA
+find_library(NeMALA_LIBRARY NAMES libNeMALA.a libNeMALA.so PATHS "/usr/local/lib/")
+include_directories("/usr/local/include/")
+
+################################# Libraries #############################
+
+set (EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES}  ${NeMALA_LIBRARY})
+
+#############################################################
+
+add_executable(adapter src/ros_alate_adapter.cpp src/adapter.cpp)
+ament_target_dependencies(
+	adapter
+	rclcpp
+	geometry_msgs
+	ros_alate_interfaces
+)
+target_link_libraries (adapter ${EXTRA_LIBS})
+
 target_include_directories(adapter PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)

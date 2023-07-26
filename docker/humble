@@ -1,0 +1,37 @@
+FROM ros:humble AS builder
+
+RUN apt-get update
+RUN apt-get install -y \
+    cmake \
+    g++ \
+    libzmq3-dev \
+    libboost-all-dev \
+    make \
+    wget
+
+WORKDIR /tmp/
+
+RUN wget https://gitlab.com/nemala/core/-/archive/version_0_1/core-version_0_1.tar.gz
+
+RUN tar -xvf ./core-version_0_1.tar.gz
+
+WORKDIR /tmp/core-version_0_1/build
+
+RUN cmake -S ../src -B . -D BOOST_INCLUDEDIR="/usr/local/include" \
+    && make install
+    
+#-------------------------- Final Stage -----------------------------
+
+FROM ros:humble
+
+RUN apt-get update
+RUN apt-get install -y \
+	libzmq3-dev \
+	libboost-all-dev
+	
+COPY --from=builder /usr/local/include /usr/local/include
+COPY --from=builder /usr/local/lib /usr/local/lib
+
+CMD [ "bash" ]
+
+# ------------------------------------------------------------------

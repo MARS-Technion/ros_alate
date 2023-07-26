@@ -24,12 +24,11 @@ ros2 run ros_alate adapter
 
 ## About
 
-The ros_alate adapter is a ROS2 node which has a AntAlate dispatcher, as can be seen in the class diagram below.
+The ros_alate adapter is a ROS2 node which has a [NeMALA::Dispatcher](https://gitlab.com/nemala/core/-/blob/master/doc/components.md), as can be seen in the class diagram below.
 
 ![Class Diagram](doc/images/class_adapter.svg)
 
 The adapter was designed to run alongside an AntAlate application, adapting the AntAlate messages to ROS2 messages and vice versa.
-The adapter is a ROS2 node, which has a [NeMALA::Dispatcher](https://gitlab.com/nemala/core/-/blob/master/doc/components.md).
 The adapter spins, and when a subscribed ROS topic invokes one of its callback functions, the adapter publishes the message to the appropriate AntAlate topic.
 
 The dispatcher dispatches NeMALA messages in its own thread to its appropriate handlers, which in turn call their ROS2 publishers to publish the incoming message.
