@@ -32,6 +32,8 @@ RUN apt-get install -y \
 COPY --from=builder /usr/local/include /usr/local/include
 COPY --from=builder /usr/local/lib /usr/local/lib
 
+RUN ldconfig
+
 CMD [ "bash" ]
 
 # ------------------------------------------------------------------

@@ -1,0 +1,9 @@
+/ros_alate_adapter:
+  ros__parameters:
+    alate_operator_command_topic: 101
+    alate_velocity_topic: 104
+    nemala_node_id: 402
+    proxy_endpoint_for_publishing: ipc:///tmp/alate_publishers
+    proxy_endpoint_for_subscribing: ipc:///tmp/alate_subscribers
+    use_sim_time: false
+

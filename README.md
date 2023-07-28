@@ -4,6 +4,20 @@ A ROS2 adapter for the [AntAlate](https://www.frontiersin.org/articles/10.3389/f
 
 ![Component Diagram](doc/images/component_adapter.svg)
 
+## About
+
+The ros_alate adapter is a ROS2 node that has a [NeMALA::Dispatcher](https://gitlab.com/nemala/core/-/blob/master/doc/components.md) and shares publishers and handlers with it, as shown in the class diagram below.
+
+![Class Diagram](doc/images/class_adapter.svg)
+
+The adapter adapts the AntAlate messages to ROS2 messages and vice versa.
+The adapter's ROS node spins while its NeMALA dispatcher dispatches.
+When a subscribed ROS topic invokes one of its callback functions, the adapter publishes the message to the appropriate AntAlate topic.
+When the dispatcher dispatches NeMALA messages to its appropriate handlers, they in turn call their ROS2 publishers to publish the ROS version of the incoming message.
+
+In the class diagram above, only the HandlerMissionState is described, but all other concrete handlers are constructed similarly.
+
+
 ## Subscribes to Topics
 
 1. "alate_input_operator_command"
@@ -16,21 +30,42 @@ A ROS2 adapter for the [AntAlate](https://www.frontiersin.org/articles/10.3389/f
 1. "alate_output_high_level_control_telemetry"
 1. "alate_output_high_level_control_platform_errors"
 
+## Parameters
+
+| Parameter                     | Meaning		|Default Value	|	Remark	|
+| ---------                     | ------------	| -------		|-------	|
+| alate_operator_command_topic  | The NeMALA topic ID for the operator command, how the dispatcher knows which handler to call.  | 101 | Should match the NeMALA / Alate configuration. |
+| alate_velocity_topic  | The NeMALA topic ID for the velocity command, how the dispatcher knows which handler to call.  | 104 |  Should match the NeMALA / Alate configuration. |
+| nemala_node_id  | The NeMALA node ID, how the dispatcher calls itself.  | 402 |  Should match the NeMALA / Alate configuration. |
+| proxy_endpoint_for_subscribing  | The NeMALA proxy endpoint for subscriptions. This is the port the dispatcher listens to.  | ipc:///tmp/alate_subscribers |  Should match the NeMALA / Alate configuration. |
+| proxy_endpoint_for_publishing  | The NeMALA proxy endpoint for publishing. This is the port the publishers write to.  | ipc:///tmp/alate_publishers |  Should match the NeMALA / Alate configuration. |
+| use_sim_time  	           | Should the time also be simulated	| false	|	See [ROS Clock](http://wiki.ros.org/Clock) |
+
 ## Usage
 
+Since this package was designed to work alongside an AntAlate application, and not instead of one, The NeMALA proxy and other tools are deliberately out of this package's scope.
+
+### To run:
+
+Given a running [NeMALA::Proxy](https://gitlab.com/nemala/core/-/blob/master/doc/components.md), the next step can be skipped; just make sure to set the right parameters to fit your setup to match the Alate configuration.
+
 ```console
-ros2 run ros_alate adapter
+docker run --rm -v $PWD:/alate/config -v /tmp/nemala:/tmp --network ros-net --name nemala_proxy -it nemala/tools:latest proxy uav /alate/config/uav.json
 ```
 
-## About
+In the following example, we use a parameter file located in the working directory.
 
-The ros_alate adapter is a ROS2 node which has a [NeMALA::Dispatcher](https://gitlab.com/nemala/core/-/blob/master/doc/components.md), as can be seen in the class diagram below.
+```console
+ros2 run ros_alate adapter --ros-args --params-file ./adapter.yaml
+```
 
-![Class Diagram](doc/images/class_adapter.svg)
+### To terminate:
 
-The adapter was designed to run alongside an AntAlate application, adapting the AntAlate messages to ROS2 messages and vice versa.
-The adapter spins, and when a subscribed ROS topic invokes one of its callback functions, the adapter publishes the message to the appropriate AntAlate topic.
+```console
+docker run --rm -v $PWD:/alate/config -v /tmp/nemala:/tmp --network ros-net --name nemala_proxy -it nemala/tools:latest terminate [402]  uav /alate/config/uav.json
+```
 
-The dispatcher dispatches NeMALA messages in its own thread to its appropriate handlers, which in turn call their ROS2 publishers to publish the incoming message.
+It is better to shut down the dispatcher thread first. Given a running NeMALA proxy, a command similar to the one above should do the trick.
+Here we use the arguments matching the ros_alate adapter default parameters; if you use different parameters make sure you use the right arguments in the termination call.
 
-In the class diagram above, only the HandlerMissionState is described, but all other concrete handlers are constructed similarly.
+Another way to terminate is to use the keyboard interrupt, the good ol' fashioned ROS way, or to send a kill signal, exit the terminal, terminate the container you are running in, smash the computer... all valid choices.
