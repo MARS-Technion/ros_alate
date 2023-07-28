@@ -17,6 +17,10 @@ When the dispatcher dispatches NeMALA messages to its appropriate handlers, they
 
 In the class diagram above, only the HandlerMissionState is described, but all other concrete handlers are constructed similarly.
 
+## Dependencies
+
+* [NeMALA::Core](https://gitlab.com/nemala/core)
+* [ros_alate_interfaces](https://github.com/MARS-Technion/ros_alate_interfaces)
 
 ## Subscribes to Topics
 
@@ -48,9 +52,11 @@ Since this package was designed to work alongside an AntAlate application, and n
 ### To run:
 
 Given a running [NeMALA::Proxy](https://gitlab.com/nemala/core/-/blob/master/doc/components.md), the next step can be skipped; just make sure to set the right parameters to fit your setup to match the Alate configuration.
+In the following command, the working directory contains an Alate configuration file *uav.json* where a proxy named *uav* is described.
+For more on Alate configuration files read the [Alate documentation](https://gitlab.com/nemala/alate/-/blob/master/doc/using.md#config).
 
 ```console
-docker run --rm -v $PWD:/alate/config -v /tmp/nemala:/tmp --network ros-net --name nemala_proxy -it nemala/tools:latest proxy uav /alate/config/uav.json
+docker run --rm -v $PWD:/alate/config -v /tmp/nemala:/tmp --name nemala_proxy -it nemala/tools:latest proxy uav /alate/config/uav.json
 ```
 
 In the following example, we use a parameter file located in the working directory.
@@ -62,10 +68,10 @@ ros2 run ros_alate adapter --ros-args --params-file ./adapter.yaml
 ### To terminate:
 
 ```console
-docker run --rm -v $PWD:/alate/config -v /tmp/nemala:/tmp --network ros-net --name nemala_proxy -it nemala/tools:latest terminate [402]  uav /alate/config/uav.json
+docker run --rm -v /tmp/nemala:/tmp --name nemala_terminator -it nemala/tools:latest terminate [402] ipc:///tmp/alate_publishers
 ```
 
 It is better to shut down the dispatcher thread first. Given a running NeMALA proxy, a command similar to the one above should do the trick.
 Here we use the arguments matching the ros_alate adapter default parameters; if you use different parameters make sure you use the right arguments in the termination call.
 
-Another way to terminate is to use the keyboard interrupt, the good ol' fashioned ROS way, or to send a kill signal, exit the terminal, terminate the container you are running in, smash the computer... all valid choices.
+Another way to terminate is to use the keyboard interrupt the good ol' fashioned ROS way, or to send a kill signal, exit the terminal, terminate the container you are running in, smash the computer... all valid choices.
