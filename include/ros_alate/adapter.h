@@ -29,6 +29,8 @@ limitations under the License.
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "ros_alate_interfaces/msg/op_com.hpp"
+#include "ros_alate_interfaces/OpComMessage.hpp"
+#include "ros_alate_interfaces/Vector6Message.hpp"
 
 namespace ros_alate {
 

@@ -130,12 +130,36 @@ int Adapter::operator()()
 
 void Adapter::callback_Velocity(const geometry_msgs::msg::Twist &msg) const
 {
-	RCLCPP_INFO(this->get_logger(), "I heard: '%f'", msg.angular.z);
+	ros_alate_interfaces::Vector6Message VelComMsg(msg.linear.x, msg.linear.y, msg.linear.z, msg.angular.z, msg.angular.y, msg.angular.x);
+	m_pPublisherVelocity->Publish(VelComMsg);
 }
 
 void Adapter::callback_OpCom(const ros_alate_interfaces::msg::OpCom &msg) const
 {
-	RCLCPP_INFO(this->get_logger(), "I heard: '%d'", msg.op_com_enum);
+	RCLCPP_DEBUG(this->get_logger(), "callback_OpCom received enum: %d.", msg.op_com_enum);
+	ros_alate_interfaces::OpComMessage::OpCommandEnum eCom(ros_alate_interfaces::OpComMessage::OpCommandNone);
+	switch(msg.op_com_enum)
+	{
+		case ros_alate_interfaces::msg::OpCom::OP_COMMAND_TAKEOFF:
+			eCom = ros_alate_interfaces::OpComMessage::OpCommandTakeoff;
+			break;
+		case ros_alate_interfaces::msg::OpCom::OP_COMMAND_LAND:
+			eCom = ros_alate_interfaces::OpComMessage::OpCommandLand;
+			break;
+		case ros_alate_interfaces::msg::OpCom::OP_COMMAND_GOHOME:
+			eCom = ros_alate_interfaces::OpComMessage::OpCommandGoHome;
+			break;
+		case ros_alate_interfaces::msg::OpCom::OP_COMMAND_SETDIRECTION:
+			eCom = ros_alate_interfaces::OpComMessage::OpCommandSetDirection;
+			break;
+		case ros_alate_interfaces::msg::OpCom::OP_COMMAND_AUX:
+			eCom = ros_alate_interfaces::OpComMessage::OpCommandAux;
+			break;
+		default:
+			RCLCPP_WARN(this->get_logger(), "callback_OpCom received INVALID enum: %d", msg.op_com_enum);
+	}
+	ros_alate_interfaces::OpComMessage msgCom(eCom);
+	m_pPublisherOpCom->Publish(msgCom);
 }
 
 } // namespace ros_alate
